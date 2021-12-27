@@ -33,7 +33,7 @@ app.use("/api/users", userRoute);
 app.use("/api/movies", movieRoute);
 app.use("/api/lists", listRoute);
 
-app.use(express.static(path.join(__dirname, "/client")));
+app.use(express.static(path.join(__dirname, "/client/build")));
 
 app.use('/favicon.ico', express.static(__dirname + "/images/favicon.jpg"));
 
