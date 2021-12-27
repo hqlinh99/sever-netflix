@@ -35,12 +35,11 @@ app.use("/api/lists", listRoute);
 
 app.use(express.static(path.join(__dirname, "/client/build")));
 
-app.use('/favicon.ico', express.static(__dirname + "/images/favicon.jpg"));
-
-
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '/client/build', 'index.html'));
 });
+
+app.use('/favicon.ico', express.static(__dirname + "/images/favicon.jpg"));
 
 app.listen(process.env.PORT || 5000, () => {
   console.log("Sever is running!");
