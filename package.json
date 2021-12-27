@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "@hapi/joi": "^17.1.1",
+    "api": "1.0.0",
     "bcryptjs": "^2.4.3",
     "build": "^0.1.4",
     "cookie-parser": "^1.4.6",
