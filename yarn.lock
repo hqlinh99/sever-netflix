@@ -1328,6 +1328,11 @@ end-of-stream@^1.0.0, end-of-stream@^1.1.0:
   dependencies:
     once "^1.4.0"
 
+engines@^0.4.0:
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/engines/-/engines-0.4.0.tgz#aefd16e99762ea4f809c5c3aeac4c5b22f068a8c"
+  integrity sha1-rv0W6Zdi6k+AnFw66sTFsi8Giow=
+
 enquirer@^0.4.1:
   version "0.4.1"
   resolved "https://registry.yarnpkg.com/enquirer/-/enquirer-0.4.1.tgz#7ce671c44cfff63add1e7971bf32b9cb3efc97ed"
