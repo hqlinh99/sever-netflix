@@ -4,7 +4,6 @@ const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const cookieParser = require("cookie-parser");
 const path = require("path"); 
-const path = require("path"); 
 
 app.use(cookieParser());
 
