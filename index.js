@@ -3,8 +3,9 @@ const app = express();
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const cookieParser = require("cookie-parser");
-// const path = require("path"); 
+var cors = require("cors");
 
+app.use(cors());
 app.use(cookieParser());
 
 //Import Routes
@@ -39,7 +40,16 @@ app.use("/api/lists", listRoute);
 //   res.sendFile(path.join(__dirname, '/client/build', 'index.html'));
 // });
 
-app.use('/favicon.ico', express.static(__dirname + "/images/favicon.jpg"));
+app.use("/favicon.ico", express.static(__dirname + "/images/favicon.jpg"));
+
+app.use(function (req, res, next) {
+  res.header(
+    "Access-Control-Allow-Origin",
+    "https://clever-kilby-8ae033.netlify.app/"
+  );
+  res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE");
+  res.header("Access-Control-Allow-Origin", "Content-Type");
+});
 
 app.listen(process.env.PORT || 5000, () => {
   console.log("Sever is running!");
