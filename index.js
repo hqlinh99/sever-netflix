@@ -45,7 +45,7 @@ app.use("/favicon.ico", express.static(__dirname + "/images/favicon.jpg"));
 app.use(function (req, res, next) {
   res.header(
     "Access-Control-Allow-Origin",
-    "https://clever-kilby-8ae033.netlify.app/"
+    "*"
   );
   res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE");
   res.header("Access-Control-Allow-Origin", "Content-Type");
