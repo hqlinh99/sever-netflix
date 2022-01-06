@@ -19,18 +19,20 @@ router.post("/register", async (req, res) => {
   const hashedPassword = await bcrypt.hash(req.body.password, salt);
 
   //Create a new user
-  const user = new User({
+  const newUser = await new User({
     username: req.body.username,
     email: req.body.email,
     password: hashedPassword,
   });
   try {
-    const savedUser = await user.save();
-    res.send({ user: user._id });
+    const savedUser = await newUser.save();
+    res.send({ newUser: newUser._id });
   } catch (err) {
     res.status(400).send(err);
   }
 });
+
+let refreshTokens = [];
 
 //LOGIN
 router.post("/login", async (req, res) => {
@@ -46,23 +48,84 @@ router.post("/login", async (req, res) => {
   const valiPass = await bcrypt.compare(req.body.password, user.password);
   if (!valiPass) return res.status(400).send("Invalid password");
 
-  //Create and assign a token
-  const token = jwt.sign(
+  //Create and assign a accessToken
+  const accessToken = jwt.sign(
     { _id: user._id, isAdmin: user.isAdmin },
-    process.env.SECRET_KEY
+    process.env.SECRET_ACCESS_KEY,
+    {
+      expiresIn: "30s",
+    }
   );
-  res.cookie("token", token, {
+
+  //Create and assign a refreshToken
+  const refreshToken = jwt.sign(
+    { _id: user._id, isAdmin: user.isAdmin },
+    process.env.SECRET_REFRESH_KEY,
+    {
+      expiresIn: "365d",
+    }
+  );
+  refreshTokens.push(refreshToken);
+  //Set refreshToken in cookies
+  res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
-    secure: true,
+    secure: false,
     maxAge: 60 * 60 * 1000,
+    sameSite: "strict",
+    path: "/",
   });
   const { password, ...info } = user._doc;
-  res.status(200).json({ ...info, token });
+  return res.status(200).json({ ...info, accessToken });
+});
+
+//REFRESH TOKEN
+router.post("/refresh-token", (req, res) => {
+  const refreshToken = req.cookies.refreshToken;
+  if (!refreshToken) return res.status(400).send("You are not authenticated");
+  if (!refreshTokens.includes(refreshToken)) {
+    return res.status(403).json("Refresh token is not valid");
+  }
+
+  jwt.verify(refreshToken, process.env.SECRET_REFRESH_KEY, (err, user) => {
+    if (err) {
+      console.log(err);
+    }
+    refreshTokens = refreshTokens.filter((token) => token !== refreshToken);
+    //Create and assign a newAccessToken
+    const newAccessToken = jwt.sign(
+      { _id: user._id, isAdmin: user.isAdmin },
+      process.env.SECRET_ACCESS_KEY,
+      {
+        expiresIn: "30s",
+      }
+    );
+
+    //Create and assign a newRefreshToken
+    const newRefreshToken = jwt.sign(
+      { _id: user._id, isAdmin: user.isAdmin },
+      process.env.SECRET_REFRESH_KEY,
+      {
+        expiresIn: "365d",
+      }
+    );
+    refreshTokens.push(newRefreshToken);
+    res.cookie("refreshToken", newRefreshToken, {
+      httpOnly: true,
+      secure: false,
+      maxAge: 60 * 60 * 1000,
+      sameSite: "strict",
+      path: "/",
+    });
+    return res.status(200).json({ accessToken: newAccessToken });
+  });
 });
 
 router.get("/logout", verify, (req, res) => {
+  refreshTokens = refreshTokens.filter(
+    (token) => token !== req.cookies.refreshToken
+  );
   return res
-    .clearCookie("token")
+    .clearCookie("refreshToken")
     .status(200)
     .json({ message: "Successfully logged out 😏 🍀" });
 });

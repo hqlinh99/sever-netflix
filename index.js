@@ -5,7 +5,7 @@ const dotenv = require("dotenv");
 const cookieParser = require("cookie-parser");
 var cors = require("cors");
 
-app.use(cors());
+app.use(cors({ credentials: true, origin: "*" }));
 app.use(cookieParser());
 
 //Import Routes
@@ -13,6 +13,14 @@ const authRoute = require("./routes/auth");
 const userRoute = require("./routes/users");
 const movieRoute = require("./routes/movies");
 const listRoute = require("./routes/lists");
+
+//Middelwares
+app.use(express.json());
+//Route Middelwares
+app.use("/api/auth", authRoute);
+app.use("/api/users", userRoute);
+app.use("/api/movies", movieRoute);
+app.use("/api/lists", listRoute);
 
 dotenv.config();
 
@@ -26,13 +34,6 @@ mongoose
   .then(() => console.log("DB Connection Successfully!"))
   .catch((err) => console.log(err));
 
-//Middelwares
-app.use(express.json());
-//Route Middelwares
-app.use("/api/auth", authRoute);
-app.use("/api/users", userRoute);
-app.use("/api/movies", movieRoute);
-app.use("/api/lists", listRoute);
 
 // app.use(express.static(path.join(__dirname, "/client/build")));
 
@@ -42,13 +43,14 @@ app.use("/api/lists", listRoute);
 
 app.use("/favicon.ico", express.static(__dirname + "/images/favicon.jpg"));
 
-app.use(function (req, res, next) {
+app.use(function(req, res, next) {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Credentials', true);
   res.header(
-    "Access-Control-Allow-Origin",
-    "*"
+      'Access-Control-Allow-Headers',
+      'Origin, X-Requested-With, Content-Type, Accept'
   );
-  res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE");
-  res.header("Access-Control-Allow-Origin", "Content-Type");
+  next();
 });
 
 app.listen(process.env.PORT || 5000, () => {
